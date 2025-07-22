@@ -31,22 +31,38 @@ mean_face /= len(data)
 A = image_matrix - mean_face # Broadcast across columns, Shape (m, n)
 
 
-C = A @ A.T   # Shape: (m, m)
-# Eigen-decomposition of C
-eigvals_C, eigvecs_C = np.linalg.eig(C)
-eigvals_C = np.real(eigvals_C)
-eigvecs_C = np.real(eigvecs_C)
+def face_space(A):
+    """
+    Returns the eigenvectors of C and the eigenfaces as a tuple (eigvecs_C, eigenfaces).
+    Args:
+        A (np.ndarray): Mean-centered image matrix (shape: m x n)
+    Returns:
+        tuple: (eigvecs_C, eigenfaces)
+            eigvecs_C: Eigenvectors of C (shape: m x m)
+            eigenfaces: Eigenfaces matrix (shape: n x m)
+    """
+    C = A @ A.T # Eigen-decomposition of C
 
-# Sort eigenvalues and vectors in descending order
-idx = np.argsort(eigvals_C)[::-1]
-eigvals_C = eigvals_C[idx]
-eigvecs_C = eigvecs_C[:, idx]
+    if A.shape[0] > A.shape[1]:
+        raise ValueError("Matrix A has more rows (m) than columns (n). Please ensure m <= n.")
+    eigvals_C, eigvecs_C = np.linalg.eig(C)
+    eigvecs_C = np.real(eigvecs_C)
+    # Sort by descending eigenvalue
+    idx = np.argsort(np.real(eigvals_C))[::-1]
+    eigvecs_C = eigvecs_C[:, idx]
+    # Compute eigenfaces
+    eigenfaces = A.T @ eigvecs_C
+    eigenfaces /= np.linalg.norm(eigenfaces, axis=0, keepdims=True)
+    return eigvecs_C, eigenfaces
 
-# Following formula (5) from Turk & Pentland, 1991
-eigenfaces = A.T @ eigvecs_C    # Shape: (n, m)
-eigenfaces /= np.linalg.norm(eigenfaces, axis=0, keepdims=True)
 
-# Plot the first eigenface for visualization
-first_eigenface = eigenfaces[:, 0].reshape((92, 92))
-plt.imshow(first_eigenface, cmap='gray')
-plt.show()
+def mean_face(image_matrix):
+    """
+    Computes the mean face by averaging all rows in the image matrix.
+    Args:
+        image_matrix (np.ndarray): Matrix of flattened images (shape: m x n)
+    Returns:
+        np.ndarray: Mean face (shape: n,)
+    """
+    return np.mean(image_matrix, axis=0)
+
