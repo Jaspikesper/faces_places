@@ -4,6 +4,21 @@ from PIL import Image
 
 
 def read_pgm(filename, folder_num=None, photo_num=None, crop_top=10, crop_bottom=10):
+    """Reads a PGM image file and returns it as a numpy array.
+    There are two ways to call this function:
+    1. With a single filename (string):
+        Examples:
+            read_pgm('changed')
+            read_pgm('changed.pgm')
+            read_pgm('face_data/s1/1.pgm')
+
+    2. With a file name, a folder number, and a photo number:
+        Examples:
+            read_pgm('face_data, 1, 1)
+            read_pgm('face_data/s1', 1, 1)
+            """
+
+
     if folder_num is not None and photo_num is not None:
         path = os.path.join('face_data', f's{folder_num}', f'{photo_num}.pgm')
     elif folder_num is None and photo_num is None:
@@ -28,7 +43,7 @@ def read_pgm(filename, folder_num=None, photo_num=None, crop_top=10, crop_bottom
     return img
 
 
-def crop_and_resize(arr, out_size=256):
+def crop_and_resize(arr, out_size=92):
     min_side = min(arr.shape)
     y, x = arr.shape
     y0 = (y - min_side) // 2
@@ -64,3 +79,8 @@ def read_all_faces(face_data_dir='face_data'):
     if A.shape[0] == 0 or A.shape[1] == 0:
         raise ValueError(f"Output array has invalid shape: {A.shape}")
     return A
+
+if __name__ == '__main__':
+    A = read_pgm('changed.pgm')
+    resized = crop_and_resize(A)
+    save_pgm('changed.pgm', resized)
