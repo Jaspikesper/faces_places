@@ -44,6 +44,7 @@ def read_pgm(filename, folder_num=None, photo_num=None, crop_top=10, crop_bottom
 
 
 def crop_and_resize(arr, out_size=92):
+    """One off operation to crop the image to a square and resize it to out_size x out_size."""
     min_side = min(arr.shape)
     y, x = arr.shape
     y0 = (y - min_side) // 2
@@ -54,12 +55,14 @@ def crop_and_resize(arr, out_size=92):
     return np.array(resized, dtype=np.uint8)
 
 def save_pgm(filename, arr):
+    """Saves a numpy array as a PGM file in the parent directory"""
     h, w = arr.shape
     with open(filename, 'wb') as f:
         f.write(b'P5\n%d %d\n255\n' % (w, h))
         f.write(arr.tobytes())
 
 def read_all_faces(face_data_dir='face_data'):
+    """Reads all the faces and puts them out"""
     data = []
     for subject in os.listdir(face_data_dir):
         for photo_num in [1, 2, 3]:

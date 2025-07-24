@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import time
 import numpy.linalg as la
-
+import copy
 
 def mean_face(image_matrix):
     """
@@ -15,20 +15,32 @@ def mean_face(image_matrix):
     """
     return np.mean(image_matrix, axis=0)
 
-def gram_schmidt(A):
-    """Compute an orthogonal matrix using the Gram-Schmidt process on the rows of A"""
 
-    Q = np.zeros_like(A.shape)
-    Q[0] = A[0]
-    for i in range(1, A.shape[0]):
-        u = A[i]
-        for v in Q:
-            projuv = v * np.dot(u, v) / np.dot(v, v)
-            print('u is: ', u)
-            print('v is: ', v)
-            print('projuv is: ', projuv)
-            u -= projuv
-        Q[i] = u
+def gram_schmidt(A):
+    t0 = time.perf_counter()
+    """Compute an orthonormal matrix using the Gram-Schmidt process on the rows of A"""
+    A = A.copy()
+    for k in range(A.shape[0]):
+        v_k = A[k].copy()
+        for j in range(k):
+            u_j = A[j]
+            norm =  np.dot(u_j, u_j)
+            if norm < 1e-10:
+                continue  # Skip if u_j is zero vector
+            proj = np.dot(v_k, u_j) / norm * u_j
+            v_k -= proj
+        norm = np.linalg.norm(v_k)
+        if norm > 1e-10:
+            A[k] = v_k / norm
+        else:
+            A[k] = v_k
+    t1 = time.perf_counter()
+    print(f"Gram-Schmidt completed in {t1 - t0:.4f} seconds.")
+    return A
+
+def grahm_schmidt(A):
+    """Perform Grahm-Schmidt orthonormalization on the columns of A."""
+    Q, R = np.linalg.qr(A)
     return Q
 
 def face_space(A):
@@ -120,19 +132,13 @@ def test_is_diag():
     print("All tests passed.")
 
 
-def is_diag(mat, tol=1e-4):
-    """
-    Returns boolean answer to whether or not mat is a diagonal matrix
-    :param mat: The matrix
-    :param tol: The tolerance for element difference from different
-    :return: Boolean check
-    """
-    for i in range(mat.shape[0]):
-        for j in range(mat.shape[1]):
-            if i != j and mat[i, j] > tol:
-                return False
 
-    return True
+
+def is_diag(mat, tol=1e-8):
+    """
+    Returns True if mat is a diagonal matrix within a given tolerance.
+    """
+    return np.all(np.abs(mat - np.diag(np.diagonal(mat))) < tol)
 
 
 def is_orthonormal(mat, tol=1e-4):
