@@ -14,6 +14,63 @@ l2 = r"\mathbf{v}_2"
 
 class MyThreeDimensionalScene(ThreeDScene):
     def construct(self):
+
+        eqn1 = MathTex(
+            r"\text{We will obtain }",
+            r"\{",
+            r"\mathbf{v_{1}}",
+            r"\perp",
+            r"\mathbf{v_{2}}",
+            r"\}",
+            r"\text{ from }",
+            r"\{",
+            r"\mathbf{u_{1}}",
+            r",",
+            r"\mathbf{u_{2}}",
+            r"\}",
+            r"\text{ using Gram-Schmidt.}"
+        )
+        eqn2 = MathTex(
+            r"\mathbf{v_{1}}",
+            r"=",
+            r"\mathbf{u_{1}}"
+        )
+        eqn3 = MathTex(
+            r"\mathbf{v_{2}}",
+            r"=",
+            r"\mathbf{u_{2}}",
+            r"-",
+            r"\operatorname{proj}_{\mathbf{v_{1}}}\mathbf{u_{2}}"
+        )
+        eqn4 = MathTex(
+            r"\{",
+            r"\mathbf{v_{1}}",
+            r"\perp",
+            r"\mathbf{v_{2}}",
+            r"\}",
+            r"\text{ from }",
+            r"\{",
+            r"\mathbf{u_{1}}",
+            r",",
+            r"\mathbf{u_{2}}",
+            r"\}"
+        )
+        eqn4.move_to([1.7, 2, 0])
+
+        self.play(Create(eqn1))
+        self.play(eqn1.animate.move_to([0, 2, 0]))
+
+        self.play(TransformMatchingTex(eqn1.copy(), eqn2))
+        self.play(eqn2.animate.move_to([0, 1, 0]))
+
+        self.play(TransformMatchingTex(eqn1.copy(), eqn3))
+        self.play(eqn3.animate.move_to([1.3, 0, 0]))
+
+        self.play(TransformMatchingTex(eqn1, eqn4))
+        vg = VGroup(eqn2, eqn3, eqn4)
+        self.play(vg.animate.scale(0.5).to_corner(UR), run_time=2.5)
+        self.add_fixed_in_frame_mobjects(vg)
+        self.wait(2.5)
         axes = ThreeDAxes()
         V1 = Vector(v1, color=RED)
         V2 = Vector(v2)
@@ -33,7 +90,7 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.begin_ambient_camera_rotation(rate=0.1)
         self.wait(2.5)
         self.stop_ambient_camera_rotation()
-        self.move_camera(phi=0 * DEGREES, theta=-90 * DEGREES, run_time=2.5)
+        self.move_camera(phi=0 * DEGREES, theta=-140 * DEGREES, run_time=2.5)
         self.default_camera_orientation_kwargs = {'phi': 80 * DEGREES, 'theta': -30 * DEGREES, 'zoom': 1.5}
         self.wait(1)
 
@@ -66,7 +123,7 @@ class MyThreeDimensionalScene(ThreeDScene):
             ReplacementTransform(proj_label_shifted, NEG_L1)
         )
 
-        solution = (v2 + negative_projection) * 5 # Scale up the solution vector for visibility
+        solution = v2 + negative_projection # Scale up the solution vector for visibility
         SOLUTION = Vector(solution, color=RED)
 
         a = solution * 0.1
@@ -82,7 +139,7 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.play(ReplacementTransform(V2, SOLUTION), FadeOut(NEG), FadeOut(NEG_L1))
         self.wait(1.5)
 
-        self.set_camera_orientation(phi=45 * DEGREES, theta=-160 * DEGREES, run_time=2.5)
+        self.move_camera(phi=60 * DEGREES, theta=-100 * DEGREES, run_time=2)
         self.begin_ambient_camera_rotation()
         self.wait(1)
 
