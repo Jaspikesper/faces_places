@@ -1,32 +1,68 @@
 from manim import *
 import os
 
-left_side = r"\operatorname{proj}_{\mathbf{v}} \mathbf{u}"
-equals = r"="
-right_side = r"\frac{\mathbf{u} \cdot \mathbf{v}}{\lVert \mathbf{v} \rVert^2} \mathbf{v}"
+
+
 
 class Gram(Scene):
     def construct(self):
-        title = Title("Projection Formula (Unit Vector Simplification)")
-        self.play(Create(title))
+        eqn1 = MathTex(
+            r"\text{We will obtain }",
+            r"\{",
+            r"\mathbf{v_{1}}",
+            r"\perp",
+            r"\mathbf{v_{2}}",
+            r"\}",
+            r"\text{ from }",
+            r"\{",
+            r"\mathbf{u_{1}}",
+            r",",
+            r"\mathbf{u_{2}}",
+            r"\}",
+            r"\text{ using Gram-Schmidt.}"
+        )
+        eqn2 = MathTex(
+            r"\mathbf{v_{1}}",
+            r"=",
+            r"\mathbf{u_{1}}"
+        )
+        eqn3 = MathTex(
+            r"\mathbf{v_{2}}",
+            r"=",
+            r"\mathbf{u_{2}}",
+            r"-",
+            r"\operatorname{proj}_{\mathbf{v_{1}}}\mathbf{u_{2}}"
+        )
+        eqn4 = MathTex(
+            r"\{",
+            r"\mathbf{v_{1}}",
+            r"\perp",
+            r"\mathbf{v_{2}}",
+            r"\}",
+            r"\text{ from }",
+            r"\{",
+            r"\mathbf{u_{1}}",
+            r",",
+            r"\mathbf{u_{2}}",
+            r"\}"
+        )
+        eqn4.move_to([1.7, 2, 0])
 
-        left_tex = MathTex(left_side, font_size=48)
-        equals_tex = MathTex(equals, font_size=48)
-        right_tex = MathTex(right_side, font_size=48)
+        self.play(Create(eqn1))
+        self.play(eqn1.animate.move_to([0, 2, 0]))
 
-        eq_group = VGroup(left_tex, equals_tex, right_tex).arrange(RIGHT, buff=0.8)
-        eq_group.next_to(title, DOWN, buff=0.8)
-        self.play(Write(eq_group))
-        self.wait(1)
+        self.play(TransformMatchingTex(eqn1.copy(), eqn2))
+        self.play(eqn2.animate.move_to([0, 1, 0]))
 
-        # Animate right side moving over left side (should slide!)
+        self.play(TransformMatchingTex(eqn1.copy(), eqn3))
+        self.play(eqn3.animate.move_to([1.3, 0, 0]))
 
-        # Optionally, morph the right_tex into left_tex for a smooth finish
-        self.play(ReplacementTransform(right_tex, left_tex), FadeOut(equals_tex))
-        self.wait(1)
-        self.play(left_tex.animate.move_to([0, 2, 0]))
-        self.wait(2)
+        self.play(TransformMatchingTex(eqn1, eqn4))
+        vg = VGroup(eqn2, eqn3, eqn4)
+        self.play(vg.animate.scale(0.5).to_corner(UR), run_time=2.5)
+        self.wait(2.5)
 
+        # Create number plane
 
 
 if __name__ == "__main__":
