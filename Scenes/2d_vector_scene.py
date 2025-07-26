@@ -28,10 +28,8 @@ class MyTwoDimensionalScene(VectorScene):
         vector = np.array([2, 1, 0])
         P1 = Dot(vector)
         V1 = Vector(vector, color=BLUE)
-        # Swapped label positions
-        V1_label_pos = vector + 0.6 * (UP + LEFT)
-        V2_label_pos = vector + 0.6 * (UP + RIGHT)
-        P1_label = MathTex(r"\begin{pmatrix} 2 \\ 1 \end{pmatrix}").move_to(V2_label_pos)
+        V1_label_pos = vector + 0.6 * (UP + RIGHT)
+        P1_label = MathTex(r"\begin{pmatrix} 2 \\ 1 \end{pmatrix}").move_to(V1_label_pos)
         V1_label = MathTex(r"\begin{bmatrix} 2 \\ 1 \end{bmatrix}").move_to(V1_label_pos)
         self.play(FadeIn(P1))
         self.play(Create(P1_label))
@@ -45,19 +43,31 @@ class MyTwoDimensionalScene(VectorScene):
         # Second vector and label
         vector_2 = np.array([1, 3, 0])
         V2 = Vector(vector_2, color=ORANGE)
-        V2_label = MathTex(r"\begin{bmatrix} 1 \\ 3 \end{bmatrix}").move_to(V2_label_pos)
+        V2_label = MathTex(r"\begin{bmatrix} 1 \\ 3 \end{bmatrix}")
+        # Arrange V1_label and V2_label side by side
+        V1_label.save_state()
+        V2_label.next_to(V1_label, RIGHT, buff=0.6)
         self.play(Create(V2))
         self.play(Create(V2_label))
 
-        # Plus sign (relative to new V2_label position)
-        plus_sign = MathTex(r"\mathbf{+}").next_to(V2_label, RIGHT, buff=0.08)
+        # Animate both labels to be side by side (if not already)
+        self.play(
+            V1_label.animate.move_to([-2, 2, 0]),
+            V2_label.animate.next_to(V1_label, RIGHT, buff=0.6)
+        )
+        self.wait(0.5)
+
+        # Create plus sign and insert between the labels
+        plus_sign = MathTex(r"\mathbf{+}")
+        plus_sign.next_to(V1_label, RIGHT, buff=0.08)
         self.play(Create(plus_sign))
+        self.play(V2_label.animate.next_to(plus_sign, RIGHT, buff=0.08))
         rec.move_to(plus_sign.get_center())
         self.wait(1)
 
-        # Move labels and plus sign two units to the right
-        eqn_group = VGroup(rec, V1_label, V2_label, plus_sign)
-        self.play(eqn_group.animate.shift(2 * RIGHT))
+        # Move equation group to the right
+        eqn_group = VGroup(rec, V1_label, plus_sign, V2_label)
+        self.play(eqn_group.animate.shift(3 * RIGHT))
         self.wait(0.5)
 
         # Move yellow vector to tip of blue vector
@@ -67,12 +77,12 @@ class MyTwoDimensionalScene(VectorScene):
         # Result vector and equals sign
         v3 = vector + vector_2
         V3 = Vector(v3, color=PURPLE)
-        equals_sign = MathTex(r"\mathbf{=}").next_to(eqn_group, RIGHT, buff=0.12)
+        equals_sign = MathTex(r"\mathbf{=}").next_to(V2_label, RIGHT, buff=0.12)
         V3_label = MathTex(r"\begin{bmatrix} 3 \\ 4 \end{bmatrix}").move_to(V3.get_end() + 0.75*RIGHT + 2.2*DOWN).add_updater(lambda m: m.next_to(equals_sign, RIGHT, buff=0.12))
         rec.add_updater(lambda m: m.stretch_to_fit_width(w.get_value()))
         self.play(Create(equals_sign), Create(V3), Create(V3_label), rec.animate.next_to(equals_sign, LEFT, buff=-0.5), w.animate.set_value(5))
         self.wait(1)
-        group_2 = VGroup(rec,V1_label, V2_label, plus_sign, equals_sign, V3_label)
+        group_2 = VGroup(rec, V1_label, plus_sign, V2_label, equals_sign, V3_label)
         # Optional: move equation group to a fixed position
         self.play(group_2.animate.move_to([5.5, 5.5, 0]))
         self.play(group_2.animate.move_to([0, 5.5, 0]))
@@ -88,7 +98,7 @@ class MyTwoDimensionalScene(VectorScene):
         scale_digit = MathTex(r"\mathbf{1.0}")
         scale_digit.add_updater(
             lambda m: m.become(
-                MathTex(rf"\mathbf{{{scale_tracker.get_value():.1f}}}").next_to(V1_label, LEFT, buff=0.18).shift(LEFT)
+                MathTex(rf"\mathbf{{{scale_tracker.get_value():.1f}}}").next_to(V1_label, LEFT, buff=0.01).shift(LEFT*1.87)
             )
         )
         self.play(Create(scale_digit))
@@ -117,6 +127,7 @@ class MyTwoDimensionalScene(VectorScene):
         #Group and fade out all elements
         self.wait(2.5)
         final_group = VGroup(*{V1, V2, V3, V1_label, V2_label, plus_sign, equals_sign, rec, scaled_v3_label, scaled_2})
+        self.play(FadeOut(final_group), run_time=2)
         self.play(FadeOut(final_group), run_time=2)
         self.wait(2.5)
 

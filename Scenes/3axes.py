@@ -4,7 +4,7 @@ import os
 import time
 
 v1 = np.array([1, 2, 3])
-v2 = np.array([1, 1, 1])
+v2 = np.array([2, 1, 2])
 projv1_v2 = v1 * np.dot(v2, v1) / np.dot(v1, v1)
 negative_projection = -projv1_v2
 
@@ -69,8 +69,8 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.play(TransformMatchingTex(eqn1, eqn4))
         vg = VGroup(eqn2, eqn3, eqn4)
         self.play(vg.animate.scale(0.5).to_corner(UR), run_time=2.5)
-        self.add_fixed_in_frame_mobjects(vg)
         self.wait(2.5)
+        self.add_fixed_in_frame_mobjects(vg)
         axes = ThreeDAxes()
         V1 = Vector(v1, color=RED)
         V2 = Vector(v2)
@@ -90,14 +90,14 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.begin_ambient_camera_rotation(rate=0.1)
         self.wait(2.5)
         self.stop_ambient_camera_rotation()
-        self.move_camera(phi=0 * DEGREES, theta=-140 * DEGREES, run_time=2.5)
+        self.move_camera(phi=0 * DEGREES, theta=-90 * DEGREES, run_time=2.5)
         self.default_camera_orientation_kwargs = {'phi': 80 * DEGREES, 'theta': -30 * DEGREES, 'zoom': 1.5}
         self.wait(1)
 
         # Initial projection vector at origin
         PROJ_V1_V2 = Vector(projv1_v2, color=BLUE)
         PROJ_L1 = MathTex(r"\operatorname{proj}_{\mathbf{v}_1}\mathbf{v}_2", font_size=32)
-        PROJ_L1.add_updater(lambda m: m.next_to(PROJ_V1_V2.get_end(), OUT + RIGHT + DOWN * 0.5))
+        PROJ_L1.add_updater(lambda m: m.next_to(PROJ_V1_V2.get_end(), OUT + RIGHT*0.2))
         self.play(Create(PROJ_V1_V2), Create(PROJ_L1))
         self.wait(1.5)
 
@@ -126,8 +126,8 @@ class MyThreeDimensionalScene(ThreeDScene):
         solution = v2 + negative_projection # Scale up the solution vector for visibility
         SOLUTION = Vector(solution, color=RED)
 
-        a = solution * 0.1
-        b = v1 * 0.1
+        a = solution * 0.5
+        b = v1 * 0.15
         c = a + b
         line_1 = Line(a, c, color=WHITE)
         line_2 = Line(b, c, color=WHITE)
@@ -139,12 +139,12 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.play(ReplacementTransform(V2, SOLUTION), FadeOut(NEG), FadeOut(NEG_L1))
         self.wait(1.5)
 
-        self.move_camera(phi=60 * DEGREES, theta=-100 * DEGREES, run_time=2)
+        self.move_camera(phi=66 * DEGREES, theta=-63 * DEGREES, run_time=2)
         self.begin_ambient_camera_rotation()
         self.wait(1)
 
         #group up everything and scale up
-        final_group = VGroup(axes, G1, G2, SOLUTION)
+        final_group = VGroup(axes, V1, V2, SOLUTION)
         self.play(final_group.animate.scale(2.5))
         self.wait(1)
         self.play(FadeIn(line_1), FadeIn(line_2))
