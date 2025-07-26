@@ -95,6 +95,7 @@ class MyTwoDimensionalScene(VectorScene):
                 MathTex(rf"\mathbf{{{scale_tracker.get_value():.1f}}} \cdot").next_to(V1_label, LEFT, buff=0.15)
             )
         )
+        V3_label_float.move_to(V3_label.get_center())
         self.play(Create(scalar_label), TransformMatchingTex(V3_label, V3_label_float))
 
         self.play(scale_tracker.animate.set_value(2), run_time=2.5)
@@ -107,7 +108,7 @@ class MyTwoDimensionalScene(VectorScene):
         scalar_label.clear_updaters()
         V3_label.clear_updaters()
         scaled_2 = MathTex(r"\mathbf{2}").move_to(scalar_label.get_center())
-        scaled_v3_label = MathTex(r"\begin{bmatrix} 5 \\ 5 \end{bmatrix}").move_to(V3_label.get_center())
+        scaled_v3_label = MathTex(r"\begin{bmatrix} 5 \\ 5 \end{bmatrix}")
         self.play(TransformMatchingTex(V3_label, scaled_v3_label), TransformMatchingTex(scalar_label, scaled_2))
         self.wait(2.5)
         final_group = VGroup(*{V1, V2, V3, V2_label, plus_sign, equals_sign, rec, scaled_v3_label, scaled_2, V1_label})
