@@ -1,6 +1,4 @@
 import numpy as np
-from pyglet.extlibs.earcut import zOrder
-
 from manim import *
 import os
 
@@ -12,7 +10,7 @@ class MyTwoDimensionalScene(VectorScene):
         h = 2
         rec = Rectangle(width=w.get_value(), height=h, color=WHITE, fill_color=BLACK, fill_opacity=0.7)
         rec.set_stroke(width=0)
-        # Create number plane
+        # Number plane
         self.number_plane = NumberPlane(
             x_range=[-12, 12, 1],
             y_range=[-12, 12, 1],
@@ -28,31 +26,27 @@ class MyTwoDimensionalScene(VectorScene):
         vector = np.array([2, 1, 0])
         P1 = Dot(vector)
         V1 = Vector(vector, color=BLUE)
-        V1_label_pos = vector + 0.6 * (UP + RIGHT)
-        P1_label = MathTex(r"\begin{pmatrix} 2 \\ 1 \end{pmatrix}").move_to(V1_label_pos)
-        V1_label = MathTex(r"\begin{bmatrix} 2 \\ 1 \end{bmatrix}").move_to(V1_label_pos)
         self.play(FadeIn(P1))
-        self.play(Create(P1_label))
-        self.wait(1)
+        self.wait(0.5)
         self.play(Create(V1))
-        self.wait(1)
+        self.wait(0.5)
         self.play(FadeOut(P1))
-        self.play(TransformMatchingTex(P1_label, V1_label))
-        self.wait(1)
+        self.wait(0.5)
+
+        # V1_label always at a definite position relative to V1 tip
+        V1_label = MathTex(r"\begin{bmatrix} 2 \\ 1 \end{bmatrix}")
+        def update_v1_label(mob):
+            mob.next_to(V1.get_end(), UP + RIGHT, buff=0.2)
+        V1_label.add_updater(update_v1_label)
+        self.add(V1_label)
 
         # Second vector and label
         vector_2 = np.array([1, 3, 0])
         V2 = Vector(vector_2, color=ORANGE)
         V2_label = MathTex(r"\begin{bmatrix} 1 \\ 3 \end{bmatrix}")
-        V1_label.save_state()
-        V2_label.next_to(V1_label, RIGHT, buff=0.6)
+        V2_label.move_to([2.5, 1.5, 0])
         self.play(Create(V2))
         self.play(Create(V2_label))
-
-        self.play(
-            V1_label.animate.move_to([-2, 2, 0]),
-            V2_label.animate.next_to(V1_label, RIGHT, buff=0.6)
-        )
         self.wait(0.5)
 
         plus_sign = MathTex(r"\mathbf{+}")
@@ -62,7 +56,7 @@ class MyTwoDimensionalScene(VectorScene):
         rec.move_to(plus_sign.get_center())
         self.wait(1)
 
-        eqn_group = VGroup(rec, V1_label, plus_sign, V2_label)
+        eqn_group = VGroup(rec, plus_sign, V2_label)
         self.play(eqn_group.animate.shift(3 * RIGHT))
         self.wait(0.5)
 
@@ -73,7 +67,7 @@ class MyTwoDimensionalScene(VectorScene):
         V3 = Vector(v3, color=PURPLE)
         equals_sign = MathTex(r"\mathbf{=}").next_to(V2_label, RIGHT, buff=0.12)
 
-        # Dynamic V3_label that updates in real time
+        # Dynamic V3_label
         scale_tracker = ValueTracker(1)
         def get_v3_label():
             scaled = scale_tracker.get_value() * vector[:2] + vector_2[:2]
@@ -86,7 +80,7 @@ class MyTwoDimensionalScene(VectorScene):
         rec.add_updater(lambda m: m.stretch_to_fit_width(w.get_value()))
         self.play(Create(equals_sign), Create(V3), Create(V3_label), rec.animate.next_to(equals_sign, LEFT, buff=-0.5), w.animate.set_value(5))
         self.wait(1)
-        group_2 = VGroup(rec, V1_label, plus_sign, V2_label, equals_sign, V3_label)
+        group_2 = VGroup(rec, plus_sign, V2_label, equals_sign, V3_label)
         self.play(group_2.animate.move_to([5.5, 5.5, 0]))
         self.play(group_2.animate.move_to([0, 5.5, 0]))
         self.wait(2.5)
@@ -97,7 +91,7 @@ class MyTwoDimensionalScene(VectorScene):
                                                         scale_tracker.get_value() * vector + vector_2))
         V3.add_updater(lambda m: m.put_start_and_end_on(ORIGIN, scale_tracker.get_value() * vector + vector_2))
 
-        # Visible scalar to the left of V1_label
+        # Scalar label
         scalar_label = MathTex(r"\mathbf{1.0} \cdot").next_to(V1_label, LEFT, buff=0.15)
         scalar_label.add_updater(
             lambda m: m.become(
@@ -115,16 +109,12 @@ class MyTwoDimensionalScene(VectorScene):
         V3.clear_updaters()
         scalar_label.clear_updaters()
         V3_label.clear_updaters()
+        V1_label.clear_updaters()
         scaled_2 = MathTex(r"\mathbf{2}").move_to(scalar_label.get_center())
         scaled_v3_label = MathTex(r"\begin{bmatrix} 5 \\ 5 \end{bmatrix}").move_to(V3_label.get_center())
         self.play(TransformMatchingTex(V3_label, scaled_v3_label), TransformMatchingTex(scalar_label, scaled_2))
-        V1.clear_updaters()
-        V2.clear_updaters()
-        V3.clear_updaters()
-        scalar_label.clear_updaters()
-        V3_label.clear_updaters()
         self.wait(2.5)
-        final_group = VGroup(*{V1, V2, V3, V1_label, V2_label, plus_sign, equals_sign, rec, scaled_v3_label, scaled_2})
+        final_group = VGroup(*{V1, V2, V3, V2_label, plus_sign, equals_sign, rec, scaled_v3_label, scaled_2, V1_label})
         self.play(FadeOut(final_group), run_time=2)
         self.wait(2.5)
 
