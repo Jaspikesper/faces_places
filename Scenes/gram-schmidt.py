@@ -72,8 +72,8 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.wait(2.5)
         self.add_fixed_in_frame_mobjects(vg)
         axes = ThreeDAxes()
-        V1 = Vector(v1, color=RED)
-        V2 = Vector(v2)
+        V1 = Vector(v1, color=ORANGE)
+        V2 = Vector(v2, color=PURPLE)
         L1 = MathTex(l1)
         L2 = MathTex(l2)
         L1.next_to(V1.get_end(), RIGHT)
@@ -95,36 +95,38 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.wait(1)
 
         # Initial projection vector at origin
-        PROJ_V1_V2 = Vector(projv1_v2, color=BLUE)
+        PROJ_V1_V2 = Vector(projv1_v2, color=ORANGE)
         PROJ_L1 = MathTex(r"\operatorname{proj}_{\mathbf{v}_1}\mathbf{v}_2", font_size=32)
         PROJ_L1.add_updater(lambda m: m.next_to(PROJ_V1_V2.get_end(), OUT + RIGHT*0.2))
         self.play(Create(PROJ_V1_V2), Create(PROJ_L1))
         self.wait(1.5)
 
         # New projection vector placed tip-to-tail at V2
-        proj_shifted = Vector(projv1_v2, color=BLUE).shift(V2.get_end())
+
+        proj_shifted = Vector(projv1_v2, color=ORANGE).shift(V2.get_end())
         proj_label_shifted = MathTex(r"\operatorname{proj}_{\mathbf{v}_1}\mathbf{v}_2", font_size=32)
         proj_label_shifted.add_updater(lambda m: m.next_to(proj_shifted.get_end(), OUT + RIGHT + DOWN * 0.5))
 
         # Animate movement and remove original
         self.play(
+            FadeOut(vg),
             ReplacementTransform(PROJ_V1_V2, proj_shifted),
             ReplacementTransform(PROJ_L1, proj_label_shifted)
         )
         self.wait(1.5)
 
         # Negative projection vector at tip of v2
-        NEG = Vector(negative_projection, color=YELLOW).shift(V2.get_end())
+        NEG = Vector(negative_projection, color=GREEN).shift(V2.get_end())
         NEG_L1 = MathTex(r"-\operatorname{proj}_{\mathbf{v}_1}\mathbf{v}_2")
         NEG_L1.add_updater(lambda m: m.next_to(NEG.get_end(), OUT * 2 + RIGHT + DOWN * 0.7))
 
-        self.play(
+        self.play(FadeIn(vg),
             ReplacementTransform(proj_shifted, NEG),
             ReplacementTransform(proj_label_shifted, NEG_L1)
         )
 
         solution = v2 + negative_projection # Scale up the solution vector for visibility
-        SOLUTION = Vector(solution, color=RED)
+        SOLUTION = Vector(solution, color=BLUE)
 
         a = solution * 0.5
         b = v1 * 0.15
@@ -140,6 +142,7 @@ class MyThreeDimensionalScene(ThreeDScene):
         self.wait(1.5)
 
         self.move_camera(phi=66 * DEGREES, theta=-63 * DEGREES, run_time=2)
+        self.play(axes.animate.set_opacity(0.5))
         self.begin_ambient_camera_rotation()
         self.wait(1)
 
