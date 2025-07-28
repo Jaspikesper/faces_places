@@ -19,8 +19,8 @@ class MyTwoDimensionalScene(Scene):
         )
         dots = VGroup()
         population_mean = np.array([5, 2])
-        population_covariance = np.array([[1, 0.5], [0.5, 1]])
-        n = 50
+        population_covariance = np.array([[1, 0.25], [0.25, 1]])
+        n = 25
         mv_normal_data = np.random.multivariate_normal(
             population_mean, population_covariance, n
         )
